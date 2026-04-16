@@ -3,20 +3,26 @@ kind: Task
 metadata: 
   name: cleanup-task
 
-spec: 
+spec:
+  workspaces:
+    - name: source 
+
   steps:
   - name: init
     image: ubuntu:latest
     script: |
-      rm -rf $PWD
+      rm -rf $PWD/*
 --- 
+
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata: 
-  name: install-dependencies
+  name: npm-install
 spec: 
+  workspaces:
+    - name: source 
   steps:
-  - name: install dependencies 
+  - name: install-dependencies 
     image: localstack/lambda-cve-mitigated-nodejs:20
     script: |
       npm install 
@@ -38,7 +44,9 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata: 
   name: jest 
-spec: 
+spec:
+  workspaces:
+  - name: source
   steps: 
   - name: run-test-with-jest
     image: localstack/lambda-cve-mitigated-nodejs:20

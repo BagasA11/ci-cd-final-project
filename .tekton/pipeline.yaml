@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata: 
+  name: cicd-pipeline
+spec:
+  params: 
+  - name: repo-url
+    type: string
+  workspaces:
+  - name: cicd-workspace
+    description: workspace for cicd tasks
+  tasks: 
+  - name: init 
+    taskRef:
+      name: cleanup
+    workspaces: 
+      - name: source 
+        workspace: cicd-workspace
+
+  - name: checkout 
+    taskRef: 
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: cicd-workspace
+    params: 
+    - name: URL 
+      value: $(params.repo-url)
+    runAfter:
+      - init
+    
+  - name: install-dependencies
+    taskRef:
+      name: npm-install
+    workspaces:
+    - name: source
+      workspace: cicd-workspace
+    runAfter:
+    - checkout
+
+  - name: lint
+    taskRef:
+
