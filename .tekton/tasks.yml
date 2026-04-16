@@ -1,4 +1,47 @@
-apiVersion: tekton.dev/v1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata: 
-  name: ci-cd-final-project
+  name: cleanup-task
+
+spec: 
+  steps:
+  - name: init
+    image: ubuntu:latest
+    script: |
+      rm -rf $PWD
+--- 
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: install-dependencies
+spec: 
+  steps:
+  - name: install dependencies 
+    image: localstack/lambda-cve-mitigated-nodejs:20
+    script: |
+      npm install 
+--- 
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: eslint 
+spec: 
+  steps: 
+  - name: run-eslint
+    image: localstack/lambda-cve-mitigated-nodejs:20
+    script: |
+      npm run lint
+--- 
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata: 
+  name: jest 
+spec: 
+  steps: 
+  - name: run-test-with-jest
+    image: localstack/lambda-cve-mitigated-nodejs:20
+    script: |
+      npm run test
+  
